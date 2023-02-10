@@ -1,19 +1,42 @@
 import {
-  GetPagePropertyResponse,
+  CreatePageParameters,
   PageObjectResponse,
-  PartialUserObjectResponse,
   QueryDatabaseParameters,
+  UpdatePageParameters,
+  UserObjectResponse,
 } from '@notionhq/client/build/src/api-endpoints'
-import { EnumPropertyTypes, Filter, getDatabase, getPageProps } from './client'
-import { getDataFromQueryProperty } from './utils'
+import { createNotionPage, EnumPropertyTypes, Filter, getDatabase, updateNotionPage } from './client'
+import { getMutatePropertyFromData, prettyDbData } from './utils'
 interface Document {
   id: string
   created_time: string
   last_edited_time: string
-  created_by: PartialUserObjectResponse
-  last_edited_by: PartialUserObjectResponse
+  created_by: UserObjectResponse
+  last_edited_by: UserObjectResponse
   url: string
 }
+type FindArguments<T> = {
+  filter?: Filter
+  pageSize?: number
+  sorts?: Array<
+    | {
+        property: keyof (T & Document)
+        direction: 'ascending' | 'descending'
+      }
+    | {
+        timestamp: 'created_time' | 'last_edited_time'
+        direction: 'ascending' | 'descending'
+      }
+  >
+  metadata?: boolean
+}
+
+type FIlterResponse<T> = {
+  results: (T & Document)[]
+  count: number
+  hasMore: boolean
+}
+
 export class Model<T> {
   schema: Record<string, EnumPropertyTypes>
   databaseId: string
@@ -35,61 +58,11 @@ export class Model<T> {
     return this.schema[property]
   }
 
-  find = async ({
-    filter,
-    pageSize,
-    sorts,
-  }: {
-    filter?: Filter
-    pageSize?: number
-    sorts?: Array<
-      | {
-          property: keyof T | keyof Document
-          direction: 'ascending' | 'descending'
-        }
-      | {
-          timestamp: 'created_time' | 'last_edited_time'
-          direction: 'ascending' | 'descending'
-        }
-    >
-  }): Promise<{
-    results: (T & Document)[]
-    count: number
-    hasMore: boolean
-  }> => {
+  find = async ({ filter, pageSize, sorts, metadata }: FindArguments<T>): Promise<FIlterResponse<T>> => {
     const response = await getDatabase(this.databaseId, filter, pageSize, sorts as QueryDatabaseParameters['sorts'])
 
     if (response.results.length > 0) {
-      const results = await Promise.all(
-        response.results.map(async (page: PageObjectResponse) => {
-          const obj: Record<string, any> = {}
-          const pageId = page.id
-          if (!pageId || typeof pageId !== 'string') return null
-          obj.id = page.id
-          obj.created_time = page.created_time
-          obj.last_edited_time = page.last_edited_time
-          obj.created_by = page.created_by
-          obj.last_edited_by = page.last_edited_by
-          obj.url = page.url
-
-          const dat = Promise.all(
-            Object.keys(page.properties).map(async prop => {
-              const property = page.properties[prop]
-              const res: GetPagePropertyResponse = await getPageProps(pageId, property.id)
-              const propType = res.type === 'property_item' ? res.property_item.type : res.type
-              return getDataFromQueryProperty[propType](res)
-            })
-          ).then((values: string[]) => {
-            return Object.keys(page.properties).reduce((acc, prop, index) => {
-              acc[prop] = values[index]
-              return acc
-            }, obj)
-          })
-          return (await dat) as T & Document
-        })
-      ).then((values: (T & Document)[]) => {
-        return values.filter(Boolean)
-      })
+      const results = response.results.map((result: PageObjectResponse) => prettyDbData<T & Document>(result, metadata))
 
       return {
         results,
@@ -103,5 +76,37 @@ export class Model<T> {
       count: 0,
       hasMore: false,
     }
+  }
+
+  update = async (id: string, data: Partial<T>, metaData = false) => {
+    const updateProp: UpdatePageParameters['properties'] = Object.keys(data).reduce((acc, prop) => {
+      try {
+        acc = {
+          ...acc,
+          ...getMutatePropertyFromData[this.type(prop)](data[prop], prop),
+        }
+      } catch (error) {
+        console.log(error)
+      }
+      return acc
+    }, {})
+    const updatedUser = (await updateNotionPage(id, updateProp)) as PageObjectResponse
+    return prettyDbData(updatedUser, metaData)
+  }
+
+  create = async (data: Partial<T>, metaData = false) => {
+    const createProps: CreatePageParameters['properties'] = Object.keys(data).reduce((acc, prop) => {
+      try {
+        acc = {
+          ...acc,
+          ...getMutatePropertyFromData[this.type(prop)](data[prop], prop),
+        }
+      } catch (error) {
+        console.log(error)
+      }
+      return acc
+    }, {})
+    const createdUser = (await createNotionPage(this.databaseId, createProps)) as PageObjectResponse
+    return prettyDbData(createdUser, metaData)
   }
 }

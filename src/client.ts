@@ -1,5 +1,9 @@
 import { Client } from '@notionhq/client'
-import { QueryDatabaseParameters } from '@notionhq/client/build/src/api-endpoints'
+import {
+  CreatePageParameters,
+  QueryDatabaseParameters,
+  UpdatePageParameters,
+} from '@notionhq/client/build/src/api-endpoints'
 export type EnumPropertyTypes =
   | 'title'
   | 'rich_text'
@@ -41,6 +45,30 @@ export async function getPageProps(pageId: string, propertyId: string) {
   return await notionClient.pages.properties.retrieve({
     page_id: pageId,
     property_id: propertyId,
+  })
+}
+
+export async function updateNotionPage(pageId: string, properties: UpdatePageParameters['properties']) {
+  return await notionClient.pages.update({
+    page_id: pageId,
+    properties,
+  })
+}
+
+export function createNotionPage(databaseId: string, properties: CreatePageParameters['properties']) {
+  return notionClient.pages.create({
+    parent: {
+      type: 'database_id',
+      database_id: databaseId,
+    },
+    properties: properties as any,
+  })
+}
+
+export function deleteNotionPage(pageId: string) {
+  return notionClient.pages.update({
+    page_id: pageId,
+    archived: true,
   })
 }
 

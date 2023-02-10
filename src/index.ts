@@ -1,9 +1,4 @@
-import { Client } from '@notionhq/client'
 import { Model } from './schema'
-
-const notion = new Client({
-  auth: process.env.NOTION_TOKEN,
-})
 
 async function main() {
   const user = new Model<{
@@ -30,21 +25,51 @@ async function main() {
     },
     'f9a54059cf554ba0a6a6f0238fd05738'
   )
-  //   const users = await user.find({
-  //     pageSize: 1,
-  //     sorts: [
-  //       {
-  //         property: 'First Name',
-  //         direction: 'ascending',
-  //       },
-  //     ],
-  //   })
-  //   //   console.log(users.results[0].Email)
+  const users = await user.find({
+    pageSize: 2,
+    sorts: [
+      {
+        property: 'First Name',
+        direction: 'ascending',
+      },
+    ],
+    metadata: true,
+  })
+  //   console.log(users.results[0].Email)
 
+  console.dir(
+    users.results.map(user => {
+      //   return {
+      //     name: `${user['First Name']} ${user['Last Name']}`,
+      //     email: user.Email,
+      //     role: user.Role,
+      //     selected: user['User Created'],
+      //   }
+      return user
+    }),
+    { depth: null }
+  )
+  //   const upUser = await user.update('faef876abeeb4d1db6f99c92a5facb84', {
+  //     'First Name': 'Manikandan',
+  //     'Last Name': 'Krishnan',
+  //     Role: 'Admin',
+  //   })
   //   console.dir(
-  //     users.results.map(user => {
-  //       return user['First Name']
-  //     }),
+  //     {
+  //       upUser,
+  //     },
+  //     { depth: null }
+  //   )
+
+  //   const upUser = await user.create({
+  //     'First Name': 'dasdasdas',
+  //     'Last Name': 'Krissadsadsadhnan',
+  //     Role: 'Admin',
+  //   })
+  //   console.dir(
+  //     {
+  //       upUser,
+  //     },
   //     { depth: null }
   //   )
 }
