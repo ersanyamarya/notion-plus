@@ -1,4 +1,4 @@
-import { Model } from './schema'
+import { Model } from './modal'
 
 async function main() {
   const user = new Model<{

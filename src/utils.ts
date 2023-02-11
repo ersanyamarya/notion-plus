@@ -1,21 +1,23 @@
 import {
+  BotUserObjectResponse,
   CreatedByPropertyItemObjectResponse,
   DatePropertyItemObjectResponse,
-  GetPagePropertyResponse,
   MultiSelectPropertyItemObjectResponse,
   NumberPropertyItemObjectResponse,
+  PageObjectResponse,
+  PersonUserObjectResponse,
   PropertyItemObjectResponse,
   RichTextPropertyItemObjectResponse,
   SelectPropertyItemObjectResponse,
   StatusPropertyItemObjectResponse,
   TitlePropertyItemObjectResponse,
+  UpdatePageParameters,
   UserObjectResponse,
-  PersonUserObjectResponse,
-  BotUserObjectResponse,
-  PageObjectResponse,
 } from '@notionhq/client/build/src/api-endpoints'
 import { EnumPropertyTypes } from './client'
 
+/* It's a map of all the different types of properties that Notion has, and the function that will
+parse them into their correct types. */
 export const parseNotionParams: Record<EnumPropertyTypes, (propertyItem: PropertyItemObjectResponse) => any> = {
   title: (propertyItem: TitlePropertyItemObjectResponse) => propertyItem.title[0]?.plain_text,
   rich_text: (propertyItem: RichTextPropertyItemObjectResponse) => propertyItem.rich_text[0]?.plain_text,
@@ -51,78 +53,88 @@ export const parseNotionParams: Record<EnumPropertyTypes, (propertyItem: Propert
   date: (propertyItem: DatePropertyItemObjectResponse) => propertyItem.date,
 }
 
-export const getMutatePropertyFromData: Record<EnumPropertyTypes, (value: any, header: string) => Record<string, any>> =
-  {
-    title: (value, property) => ({
-      [property]: {
-        title: [
-          {
-            text: {
-              content: value,
-            },
+/* It's a map of all the different types of properties that Notion has, and the function that will
+parse them into their correct types. */
+export const getMutatePropertyFromData: Record<
+  EnumPropertyTypes,
+  (value: any, header: string) => UpdatePageParameters['properties']
+> = {
+  title: (value, property) => ({
+    [property]: {
+      title: [
+        {
+          text: {
+            content: value,
           },
-        ],
-      },
-    }),
-    rich_text: (value, property) => ({
-      [property]: {
-        rich_text: [
-          {
-            text: {
-              content: value,
-            },
+        },
+      ],
+    },
+  }),
+  rich_text: (value, property) => ({
+    [property]: {
+      rich_text: [
+        {
+          text: {
+            content: value,
           },
-        ],
-      },
-    }),
-    select: (value, property) => ({
-      [property]: {
-        select: {
-          name: value,
         },
+      ],
+    },
+  }),
+  select: (value, property) => ({
+    [property]: {
+      select: {
+        name: value,
       },
-    }),
-    status: (value, property) => ({
-      [property]: {
-        status: {
-          name: value,
-        },
+    },
+  }),
+  status: (value, property) => ({
+    [property]: {
+      status: {
+        name: value,
       },
-    }),
-    multi_select: (value, property) => ({
-      [property]: {
-        multi_select: value.map(item => ({
-          name: item,
-        })),
-      },
-    }),
-    date: (value, property) => ({
-      [property]: {
-        date: value,
-      },
-    }),
+    },
+  }),
+  multi_select: (value, property) => ({
+    [property]: {
+      multi_select: value.map(item => ({
+        name: item,
+      })),
+    },
+  }),
+  date: (value, property) => ({
+    [property]: {
+      date: value,
+    },
+  }),
 
-    ...[
-      'number',
-      'files',
-      'checkbox',
-      'date',
-      'string',
-      'boolean',
-      'email',
-      'url',
-      'phone_number',
-      'created_time',
-    ].reduce((acc, type) => {
-      acc[type] = (value, property) => ({
-        [property]: {
-          [type]: value,
-        },
-      })
-      return acc
-    }, {} as Record<EnumPropertyTypes, (value: any, property: string) => Record<string, any>>),
-  }
+  ...[
+    'number',
+    'files',
+    'checkbox',
+    'date',
+    'string',
+    'boolean',
+    'email',
+    'url',
+    'phone_number',
+    'created_time',
+  ].reduce((acc, type) => {
+    acc[type] = (value, property) => ({
+      [property]: {
+        [type]: value,
+      },
+    })
+    return acc
+  }, {} as Record<EnumPropertyTypes, (value: any, property: string) => UpdatePageParameters['properties']>),
+}
 
+/**
+ * It takes in a PageObjectResponse and returns a new object with the same properties, but with the
+ * values parsed into their correct types
+ * @param {PageObjectResponse} updatedUser - PageObjectResponse
+ * @param [metaData=false] - boolean - whether or not to include the metadata of the page
+ */
 export const prettyDbData = <T>(updatedUser: PageObjectResponse, metaData = false): T =>
   Object.keys(updatedUser.properties).reduce(
     (acc, prop) => {
