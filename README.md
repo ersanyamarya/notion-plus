@@ -1,6 +1,6 @@
-# NotionDB
+# notionORM
 
-NotionDB is an Object Relational Mapping (ORM) library for Notion databases written in TypeScript. It allows you to interact with your Notion databases in a more familiar and convenient way.
+notionORM is an Object Relational Mapping (ORM) library for Notion databases written in TypeScript. It allows you to interact with your Notion databases in a more familiar and convenient way.
 
 ## Features
 
@@ -12,14 +12,14 @@ NotionDB is an Object Relational Mapping (ORM) library for Notion databases writ
 ## Installation
 
 ```bash
-npm install notiondb
+npm install notionORM
 ```
 
 ## Usage
 
 <!-- MD[CODE_SNIPPET](example/index.ts)[] -->
 ```ts
-import { Model, setNotionToken } from 'notiondb'
+import { Model, setNotionToken } from 'notionORM'
 
 // Set the token
 setNotionToken('secret_UU8a7b4d81-5660-4479-9400-4a7676c6047d')

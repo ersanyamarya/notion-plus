@@ -1,5 +1,5 @@
 {
-  "name": "notiondb",
+  "name": "notionORM",
   "version": "0.1.0",
   "description": "",
   "main": "index.js",
@@ -11,15 +11,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ersanyamarya/notionDB.git"
+    "url": "git+https://github.com/ersanyamarya/notionORM.git"
   },
   "keywords": [],
   "author": "Sanyam Arya",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/ersanyamarya/notionDB/issues"
+    "url": "https://github.com/ersanyamarya/notionORM/issues"
   },
-  "homepage": "https://github.com/ersanyamarya/notionDB#readme",
+  "homepage": "https://github.com/ersanyamarya/notionORM#readme",
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^5.51.0",
     "eslint": "^8.33.0",
