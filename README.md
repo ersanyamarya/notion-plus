@@ -5,12 +5,9 @@ NotionDB is an Object Relational Mapping (ORM) library for Notion databases writ
 ## Features
 
 - Retrieve a database from Notion using the database ID
-- Query the database and retrieve its properties and metadata
-- Retrieve a specific page from the database using the page ID
 - Query a page and retrieve its properties and metadata
 - Create a new page in the database with specified properties
 - Update an existing page in the database with new properties
-- Delete a page from the database
 
 ## Installation
 
