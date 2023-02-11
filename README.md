@@ -148,3 +148,9 @@ Creates a new entry in the database.
 Returns the newly created entry.
 
 #### `delete(id: string, metaData?: boolean): Promise<T | Record<string, unknown>>`
+
+
+Developer:
+
+[![LinkedIn](https://img.shields.io/badge/linkedin-%230077B5.svg?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/sanyam-arya/)
+[![GitHub](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)](https://github.com/ersanyamarya)
