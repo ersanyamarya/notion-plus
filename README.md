@@ -1,6 +1,6 @@
-# notionORM
+# notion-plus
 
-notionORM is an Object Relational Mapping (ORM) library for Notion databases written in TypeScript. It allows you to interact with your Notion databases in a more familiar and convenient way.
+notion-plus is an Object Relational Mapping (ORM) library for Notion databases written in TypeScript. It allows you to interact with your Notion databases in a more familiar and convenient way.
 
 ## Features
 
@@ -12,14 +12,14 @@ notionORM is an Object Relational Mapping (ORM) library for Notion databases wri
 ## Installation
 
 ```bash
-npm install notionORM
+npm install notion-plus
 ```
 
 ## Usage
 
 <!-- MD[CODE_SNIPPET](example/index.ts)[] -->
 ```ts
-import { Model, setNotionToken } from 'notionORM'
+import { Model, setNotionToken } from 'notion-plus'
 
 // Set the token
 setNotionToken('secret_UU8a7b4d81-5660-4479-9400-4a7676c6047d')

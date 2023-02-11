@@ -1,4 +1,4 @@
-import { Model, setNotionToken } from 'notionORM'
+import { Model, setNotionToken } from 'notion-plus'
 
 // Set the token
 setNotionToken('secret_UU8a7b4d81-5660-4479-9400-4a7676c6047d')
