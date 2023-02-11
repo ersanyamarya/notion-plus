@@ -1,6 +1,6 @@
 {
   "name": "notion-plus",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -13,7 +13,28 @@
     "type": "git",
     "url": "git+https://github.com/ersanyamarya/notion-plus.git"
   },
-  "keywords": [],
+  "keywords": [
+    "Notion API",
+    "Notion database",
+    "ORM",
+    "TypeScript",
+    "Node.js",
+    "CRUD",
+    "Database management",
+    "REST API",
+    "Serverless",
+    "Object-oriented programming",
+    "Entity-relationship model",
+    "Query language",
+    "Data modeling",
+    "Data persistence",
+    "Schema design",
+    "Database design",
+    "Database",
+    "notion plus",
+    "sanyam arya",
+    "notion-plus"
+  ],
   "author": "Sanyam Arya",
   "license": "ISC",
   "bugs": {
