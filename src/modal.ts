@@ -9,7 +9,7 @@ import { createNotionPage, EnumPropertyTypes, Filter, getDatabase, updateNotionP
 import { getMutatePropertyFromData, prettyDbData } from './utils'
 
 /* An interface that is used to extend the type of the data that is returned from the database. */
-interface Document {
+export type Document = {
   id: string
   created_time: string
   last_edited_time: string
@@ -37,7 +37,7 @@ interface Document {
  * @property {boolean} metadata - If true, the response will include the total number of documents that
  * match the query, and the total number of pages.
  */
-type FindArguments<T> = {
+export type FindArguments<T> = {
   filter?: Filter
   pageSize?: number
   sorts?: Array<
@@ -61,7 +61,7 @@ type FindArguments<T> = {
  * @property {boolean} hasMore - This is a boolean property that indicates whether there are more
  * results to be fetched.
  */
-type FIlterResponse<T> = {
+export type FIlterResponse<T> = {
   results: (T & Document)[]
   count: number
   hasMore: boolean
@@ -155,14 +155,11 @@ export class Model<T> {
    */
   create = async (data: Partial<T>, metaData = false) => {
     const createProps: CreatePageParameters['properties'] = Object.keys(data).reduce((acc, prop) => {
-      try {
-        acc = {
-          ...acc,
-          ...getMutatePropertyFromData[this.type(prop)](data[prop], prop),
-        }
-      } catch (error) {
-        console.log(error)
+      acc = {
+        ...acc,
+        ...getMutatePropertyFromData[this.type(prop)](data[prop], prop),
       }
+
       return acc
     }, {})
     const createdUser = (await createNotionPage(this.databaseId, createProps)) as PageObjectResponse

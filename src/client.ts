@@ -4,6 +4,7 @@ import {
   QueryDatabaseParameters,
   UpdatePageParameters,
 } from '@notionhq/client/build/src/api-endpoints'
+import { getNotionToken } from './config'
 
 /**
  * EnumPropertyTypes is an enum of all the possible property types
@@ -34,7 +35,7 @@ export type Filter = QueryDatabaseParameters['filter']
 
 /* Creating a new instance of the Notion client. */
 const notionClient = new Client({
-  auth: process.env.NOTION_TOKEN,
+  auth: getNotionToken(),
 })
 
 /**
