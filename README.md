@@ -1,7 +1,6 @@
 # notion-plus
 
-notion-plus is an Object Relational Mapping (ORM) library for Notion databases written in TypeScript. It allows you to interact with your Notion databases in a more familiar and convenient way.
-
+Notion Plus is an Object-Relational Mapping (ORM) library for TypeScript that provides a simple and intuitive way to interact with Notion databases. With Notion Plus, you can define database schemas using TypeScript interfaces, and perform CRUD operations on those databases using a fluent API.
 ## Features
 
 - Retrieve a database from Notion using the database ID
@@ -12,57 +11,66 @@ notion-plus is an Object Relational Mapping (ORM) library for Notion databases w
 ## Installation
 
 ```bash
+# Using npm
 npm install notion-plus
+
+# Using yarn
+yarn add notion-plus
+
 ```
 
 ## Usage
 
 <!-- MD[CODE_SNIPPET](example/index.ts)[] -->
 ```ts
-import { Model, setNotionToken } from 'notion-plus'
+import { NotionPlus, Schema } from 'notion-plus'
 
-// Set the token
-setNotionToken('secret_UU8a7b4d81-5660-4479-9400-4a7676c6047d')
+const notionPlus = NotionPlus.getInstance(process.env.NOTION_TOKEN)
+const databaseId = process.env.DB_ID
 
-// Define a database interface
 interface User {
-  id: string
-  name: string
-  email: string
-  age: number
-  admin: boolean
+  'First Name': string
+  'Last Name': string
+  Email: string
+  'Company Name': string
 }
 
-// Define a database model
-const userModel = new Model<User>(
-  {
-    id: 'rich_text',
-    name: 'rich_text',
-    email: 'email',
-    age: 'number',
-    admin: 'checkbox',
-  },
-  'f260adfd-2c09-4ee2-bd73-39e94a045d71'
-)
-
-// Find all users
-const users = await userModel.find({
-  pageSize: 2,
-  sorts: [
-    {
-      property: 'name',
-      direction: 'ascending',
-    },
-  ],
-  metadata: true,
+const userSchema = new Schema<User>({
+  'First Name': 'title',
+  'Last Name': 'rich_text',
+  Email: 'email',
+  'Company Name': 'rich_text',
 })
 
-// Print the users
-console.dir(users, { depth: null })
+const userModel = notionPlus.getModel<User>(databaseId, userSchema)
+
+// new Model<User>(notion, databaseId, userSchema)
+
+const main = async () => {
+  const users = await userModel.find({
+    pageSize: 1,
+    sorts: [
+      {
+        property: 'First Name',
+        direction: 'ascending',
+      },
+    ],
+    filter: {
+      property: 'First Name',
+      title: {
+        contains: 'John',
+      },
+    },
+    // metadata: true,
+  })
+  console.log(users)
+}
+main()
 ```
 <!-- MD[/CODE_SNIPPET] -->
 
 ## The `EnumPropertyTypes` enum (Supported Types)
+
 The following property types are supported:
 
 | Type           | Description                                     |
@@ -84,6 +92,53 @@ The following property types are supported:
 | `created_time` | The time the page or database item was created. |
 | `status`       | The status of a page or database item.          |
 
+## The NotionPlus Class
+
+The `NotionPlus` class is the main class in the `notion-plus` library. It provides a wrapper around the Notion API and exposes various methods to interact with Notion databases and pages.
+
+### Constructor
+
+| Parameter | Type     | Required | Description                                                                                                                                                     |
+| --------- | -------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| token     | `string` | Yes      | Notion API token. Can be obtained from [Notion Integrations](https://developers.notion.com/docs/getting-started#step-2-share-a-database-with-your-integration). |
+
+### Static Methods
+
+| Method                                                | Description                                                                                                                                                                                                  |
+| ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `getInstance(token: string)`                          | Returns a singleton instance of the `NotionPlus` class using the specified `token` string for authentication.                                                                                                |
+| `getModel<T>(databaseId: string, schema?: Schema<T>)` | Returns a `Model` object that can be used to perform CRUD operations on the specified Notion database. Optionally, you can provide a `Schema` object to validate the data when creating or updating records. |
+
+### Examples
+
+#### Creating a new NotionPlus instance
+
+```typescript
+import { NotionPlus } from 'notion-plus';
+
+const notionPlus = NotionPlus.getInstance(process.env.NOTION_TOKEN);
+```
+
+#### Creating a new Model instance
+
+```typescript
+import { NotionPlus, Schema } from 'notion-plus';
+
+interface User {
+  'First Name': string;
+  'Last Name': string;
+  Email: string;
+}
+
+const userSchema = new Schema<User>({
+  'First Name': 'title',
+  'Last Name': 'rich_text',
+  Email: 'email',
+});
+
+const databaseId = process.env.DB_ID;
+const userModel = NotionPlus.getModel<User>(databaseId, userSchema);
+```
 ## The Model Class
 
 A `Model` class representing a Notion database.
@@ -149,8 +204,6 @@ Returns the newly created entry.
 
 #### `delete(id: string, metaData?: boolean): Promise<T | Record<string, unknown>>`
 
-
 Developer:
 
-[![LinkedIn](https://img.shields.io/badge/linkedin-%230077B5.svg?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/sanyam-arya/)
-[![GitHub](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)](https://github.com/ersanyamarya)
+[![LinkedIn](https://img.shields.io/badge/linkedin-%230077B5.svg?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/sanyam-arya/) [![GitHub](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)](https://github.com/ersanyamarya)

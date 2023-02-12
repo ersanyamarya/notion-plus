@@ -11,14 +11,13 @@ import {
   SelectPropertyItemObjectResponse,
   StatusPropertyItemObjectResponse,
   TitlePropertyItemObjectResponse,
-  UpdatePageParameters,
   UserObjectResponse,
 } from '@notionhq/client/build/src/api-endpoints'
-import { EnumPropertyTypes } from './client'
+import { EnumPropertyTypes } from './schema'
 
 /* It's a map of all the different types of properties that Notion has, and the function that will
 parse them into their correct types. */
-export const parseNotionParams: Record<EnumPropertyTypes, (propertyItem: PropertyItemObjectResponse) => any> = {
+export const parseNotionParams: Record<EnumPropertyTypes, (propertyItem: PropertyItemObjectResponse) => unknown> = {
   title: (propertyItem: TitlePropertyItemObjectResponse) => propertyItem.title[0]?.plain_text,
   rich_text: (propertyItem: RichTextPropertyItemObjectResponse) => propertyItem.rich_text[0]?.plain_text,
   ...[
@@ -35,7 +34,7 @@ export const parseNotionParams: Record<EnumPropertyTypes, (propertyItem: Propert
   ].reduce((acc, type) => {
     acc[type] = (propertyItem: NumberPropertyItemObjectResponse) => propertyItem[type]
     return acc
-  }, {} as Record<EnumPropertyTypes, (propertyItem: PropertyItemObjectResponse) => any>),
+  }, {} as Record<EnumPropertyTypes, (propertyItem: PropertyItemObjectResponse) => unknown>),
   select: (propertyItem: SelectPropertyItemObjectResponse) => (propertyItem.select ? propertyItem.select.name : ''),
   status: (propertyItem: StatusPropertyItemObjectResponse) => (propertyItem.status ? propertyItem.status.name : ''),
   multi_select: (propertyItem: MultiSelectPropertyItemObjectResponse) =>
@@ -55,9 +54,9 @@ export const parseNotionParams: Record<EnumPropertyTypes, (propertyItem: Propert
 
 /* It's a map of all the different types of properties that Notion has, and the function that will
 parse them into their correct types. */
-export const getMutatePropertyFromData: Record<
+export const getNotionPropertyFromData: Record<
   EnumPropertyTypes,
-  (value: any, header: string) => UpdatePageParameters['properties']
+  (value: unknown, header: string) => PageObjectResponse['properties']
 > = {
   title: (value, property) => ({
     [property]: {
@@ -95,7 +94,7 @@ export const getMutatePropertyFromData: Record<
       },
     },
   }),
-  multi_select: (value, property) => ({
+  multi_select: (value: any, property) => ({
     [property]: {
       multi_select: value.map(item => ({
         name: item,
@@ -126,7 +125,7 @@ export const getMutatePropertyFromData: Record<
       },
     })
     return acc
-  }, {} as Record<EnumPropertyTypes, (value: any, property: string) => UpdatePageParameters['properties']>),
+  }, {} as Record<EnumPropertyTypes, (value: unknown, property: string) => PageObjectResponse['properties']>),
 }
 
 /**
