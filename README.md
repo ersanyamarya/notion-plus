@@ -1,4 +1,4 @@
-# notion-plus
+# Notion Plus
 
 Notion Plus is an Object-Relational Mapping (ORM) library for TypeScript that provides a simple and intuitive way to interact with Notion databases. With Notion Plus, you can define database schemas using TypeScript interfaces, and perform CRUD operations on those databases using a fluent API.
 ## Features
@@ -92,37 +92,98 @@ The following property types are supported:
 | `created_time` | The time the page or database item was created. |
 | `status`       | The status of a page or database item.          |
 
-## The NotionPlus Class
+---
+## The `NotionPlus` Class
 
 The `NotionPlus` class is the main class in the `notion-plus` library. It provides a wrapper around the Notion API and exposes various methods to interact with Notion databases and pages.
 
-### Constructor
-
-| Parameter | Type     | Required | Description                                                                                                                                                     |
-| --------- | -------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| token     | `string` | Yes      | Notion API token. Can be obtained from [Notion Integrations](https://developers.notion.com/docs/getting-started#step-2-share-a-database-with-your-integration). |
-
-### Static Methods
-
-| Method                                                | Description                                                                                                                                                                                                  |
-| ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `getInstance(token: string)`                          | Returns a singleton instance of the `NotionPlus` class using the specified `token` string for authentication.                                                                                                |
-| `getModel<T>(databaseId: string, schema?: Schema<T>)` | Returns a `Model` object that can be used to perform CRUD operations on the specified Notion database. Optionally, you can provide a `Schema` object to validate the data when creating or updating records. |
-
-### Examples
-
-#### Creating a new NotionPlus instance
+### Creating a new NotionPlus instance
 
 ```typescript
 import { NotionPlus } from 'notion-plus';
 
 const notionPlus = NotionPlus.getInstance(process.env.NOTION_TOKEN);
 ```
+### Constructor
 
-#### Creating a new Model instance
+Creates a new instance of the `NotionPlus` class.
+
+| Name        | Type     | Description                              |
+| ----------- | -------- | ---------------------------------------- |
+| notionToken | `string` | The API key for your Notion integration. |
+
+Since the `NotionPlus` class is a singleton, you should use the `getInstance()` method to create a new instance.
+
+### Methods
+
+#### `getModel<T>(databaseId: string, schema: Schema<T>): Model<T>`
+
+Returns a `Model<T>` instance for the specified database ID and schema. If a `Model<T>` instance for the specified database ID and schema has already been created, it returns the existing instance.
+
+| Name       | Type     | Description                        |
+| ---------- | -------- | ---------------------------------- |
+| databaseId | `string` | The ID of the Notion database.     |
+| schema     | `Schema` | The schema of the Notion database. |
+
+#### `getNotionClient(): Client`
+
+Returns the `Client` instance used by the `NotionPlus` class.
+
+#### `getDatabases(databaseId: string, filter?: QueryDatabaseParameters['filter'], pageSize?: number, sorts: QueryDatabaseParameters['sorts'] = []): Promise<QueryDatabaseResponse>`
+
+Queries a Notion database for its properties and returns the results.
+
+| Name       | Type                                                         | Description                             |
+| ---------- | ------------------------------------------------------------ | --------------------------------------- |
+| databaseId | `string`                                                     | The ID of the Notion database to query. |
+| filter     | `QueryDatabaseParameters['filter']` (optional)               | The filter to apply to the query.       |
+| pageSize   | `number` (optional)                                          | The number of items to return per page. |
+| sorts      | `QueryDatabaseParameters['sorts']` (optional, default: `[]`) | The sorting criteria for the query.     |
+
+#### `getPageProps(pageId: string, propertyId: string): Promise<GetPagePropertyResponse>`
+
+Retrieves the specified property value for a Notion page.
+
+| Name       | Type     | Description                         |
+| ---------- | -------- | ----------------------------------- |
+| pageId     | `string` | The ID of the Notion page.          |
+| propertyId | `string` | The ID of the property to retrieve. |
+
+#### `updateNotionPage(pageId: string, properties: UpdatePageParameters['properties']): Promise<UpdatePageResponse>`
+
+Updates the properties of a Notion page.
+
+| Name       | Type                                 | Description                                       |
+| ---------- | ------------------------------------ | ------------------------------------------------- |
+| pageId     | `string`                             | The ID of the Notion page.                        |
+| properties | `UpdatePageParameters['properties']` | An object containing the updated page properties. |
+
+#### `createNotionPage(databaseId: string, properties: CreatePageParameters['properties']): Promise<CreatePageResponse>`
+
+Creates a new Notion page in the specified database.
+
+| Name       | Type                                                                        | Description                               |
+| ---------- | --------------------------------------------------------------------------- | ----------------------------------------- |
+| databaseId | `string`                                                                    | The ID of the Notion database.            |
+| properties | `CreatePageParameters['properties']` (must include all required properties) | An object containing the page properties. |
+
+---
+
+## The `Schema` Class
+
+| Name                                           | Description                                                        |
+| ---------------------------------------------- | ------------------------------------------------------------------ |
+| `notionSchema: NotionSchema<T & NotionRecord>` | The notion schema for the Notion database.                         |
+| `constructor(notionSchema: NotionSchema<T>)`   | Creates a new `Schema` instance with the specified `notionSchema`. |
+
+The Schema class is a simple class with a single property notionSchema of type `NotionSchema<T & NotionRecord>`, and a constructor that initializes this property. The NotionSchema type is a mapped type that maps the keys of T to EnumPropertyTypes.
+
+The Schema class is used in the NotionPlus class to define the schema for a Notion database
+
+### Creating a new Schema instance
 
 ```typescript
-import { NotionPlus, Schema } from 'notion-plus';
+import { Schema } from 'notion-plus';
 
 interface User {
   'First Name': string;
@@ -135,72 +196,30 @@ const userSchema = new Schema<User>({
   'Last Name': 'rich_text',
   Email: 'email',
 });
-
-const databaseId = process.env.DB_ID;
-const userModel = NotionPlus.getModel<User>(databaseId, userSchema);
 ```
-## The Model Class
 
-A `Model` class representing a Notion database.
+---
 
-### Properties
 
-The properties of this class are:
+## The `Model<T>` Class
+A class representing a Notion database model with typed properties.
 
-| Property   | Type                                | Description                                                                              |
-| ---------- | ----------------------------------- | ---------------------------------------------------------------------------------------- |
-| schema     | `Record<string, EnumPropertyTypes>` | The schema of the table. A key-value pair of the column name and the type of the column. |
-| databaseId | `string`                            | The ID of the database to be used.                                                       |
+### Constructor
+
+| Parameter    | Type         | Description                                                                         |
+| ------------ | ------------ | ----------------------------------------------------------------------------------- |
+| `notionPlus` | `NotionPlus` | An instance of `NotionPlus` class used to communicate with Notion API.              |
+| `databaseId` | `string`     | The ID of the Notion database.                                                      |
+| `schema`     | `Schema<T>`  | An instance of `Schema` class representing the typed schema of the Notion database. |
 
 ### Methods
 
-The methods of this class are:
+| Method   | Parameters                                       | Return value                 | Description                                          |
+| -------- | ------------------------------------------------ | ---------------------------- | ---------------------------------------------------- |
+| `find`   | `{ filter?, pageSize?, sorts?, metadata? }`      | `Promise<FilterResponse<T>>` | Finds and returns a filtered list of database items. |
+| `create` | `item: Partial<T>, metaData = false`             | `Promise<T & NotionRecord>`  | Creates a new item in the database.                  |
+| `update` | `id: string, data: Partial<T>, metaData = false` | `Promise<T & NotionRecord>`  | Updates an existing item in the database.            |
 
-#### `type(property: string): EnumPropertyTypes`
-
-A type guard. Checks the type of the property.
-
-#### `find({ filter, pageSize, sorts, metadata }): Promise<FIlterResponse<T>>`
-
-Fetches all entries from a database and returns them as an array of objects.
-
-| Parameter  | Type      | Description                                            |
-| ---------- | --------- | ------------------------------------------------------ |
-| `filter`   | `Filter`  | A filter object to fetch entries from.                 |
-| `pageSize` | `number`  | The number of entries to fetch.                        |
-| `sorts`    | `Array`   | The order in which to sort the entries.                |
-| `metadata` | `boolean` | Whether or not to return meta data about the database. |
-
-Returns an object with the following properties:
-
-| Property  | Type               | Description                                             |
-| --------- | ------------------ | ------------------------------------------------------- |
-| `results` | `(T & Document)[]` | The results of the query.                               |
-| `count`   | `number`           | The total number of entries that match the filter.      |
-| `hasMore` | `boolean`          | Indicates whether there are more results to be fetched. |
-
-#### `update(id: string, data: Partial<T>, metaData?: boolean): Promise<T | Record<string, unknown>>`
-
-Updates an existing entry in the database.
-
-| Parameter  | Type         | Description                                            |
-| ---------- | ------------ | ------------------------------------------------------ |
-| `id`       | `string`     | The ID of the entry to be updated.                     |
-| `data`     | `Partial<T>` | The data to be updated.                                |
-| `metaData` | `boolean`    | Whether or not to return meta data about the database. |
-
-Returns the updated entry.
-
-#### `create(data: Partial<T>, metaData?: boolean): Promise<T | Record<string, unknown>>`
-
-Creates a new entry in the database.
-
-| Parameter  | Type         | Description                                            |
-| ---------- | ------------ | ------------------------------------------------------ |
-| `data`     | `Partial<T>` | The data to be inserted.                               |
-| `metaData` | `boolean`    | Whether or not to return meta data about the database. |
-
-Returns the newly created entry.
 
 #### `delete(id: string, metaData?: boolean): Promise<T | Record<string, unknown>>`
 
