@@ -7,6 +7,7 @@ Notion Plus is an Object-Relational Mapping (ORM) library for TypeScript that pr
 - Query a page and retrieve its properties and metadata
 - Create a new page in the database with specified properties
 - Update an existing page in the database with new properties
+- Delete an existing page in the database
 
 ## Installation
 
@@ -167,6 +168,15 @@ Creates a new Notion page in the specified database.
 | databaseId | `string`                                                                    | The ID of the Notion database.            |
 | properties | `CreatePageParameters['properties']` (must include all required properties) | An object containing the page properties. |
 
+
+#### `deleteNotionPage(pageId: string): Promise<DeletePageResponse>`
+
+Deletes a Notion page.
+
+| Name   | Type     | Description         |
+| ------ | -------- | ------------------- |
+| pageId | `string` | The ID of the page. |
+
 ---
 
 ## The `Schema` Class
@@ -219,6 +229,7 @@ A class representing a Notion database model with typed properties.
 | `find`   | `{ filter?, pageSize?, sorts?, metadata? }`      | `Promise<FilterResponse<T>>` | Finds and returns a filtered list of database items. |
 | `create` | `item: Partial<T>, metaData = false`             | `Promise<T & NotionRecord>`  | Creates a new item in the database.                  |
 | `update` | `id: string, data: Partial<T>, metaData = false` | `Promise<T & NotionRecord>`  | Updates an existing item in the database.            |
+| `delete` | `id: string, metaData = false`                   | `Promise<T & NotionRecord>`  | Deletes an existing item in the database.            |
 
 
 #### `delete(id: string, metaData?: boolean): Promise<T | Record<string, unknown>>`

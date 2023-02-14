@@ -85,4 +85,8 @@ export class Model<T> {
     const updatedItem = await this.notionPlus.updateNotionPage(id, this.convertToNotionProperties(data))
     return this.convertToModel(updatedItem, metaData)
   }
+
+  public async delete(id: string): Promise<void> {
+    await this.notionPlus.deleteNotionPage(id)
+  }
 }
