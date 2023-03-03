@@ -84,7 +84,7 @@ export class NotionPlus {
     })
   }
 
-  public async deleteNotionPage(pageId: string): Promise<void> {
+  public async archiveNotionPage(pageId: string): Promise<void> {
     await this.notionClient.pages.update({
       page_id: pageId,
       archived: true,

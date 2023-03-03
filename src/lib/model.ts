@@ -86,7 +86,7 @@ export class Model<T> {
     return this.convertToModel(updatedItem, metaData)
   }
 
-  public async delete(id: string): Promise<void> {
-    await this.notionPlus.deleteNotionPage(id)
+  public async archive(id: string): Promise<void> {
+    await this.notionPlus.archiveNotionPage(id)
   }
 }
