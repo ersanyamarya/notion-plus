@@ -1,0 +1,17 @@
+{
+  "name": "example",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "ts-node --esm src/index.ts"
+  },
+  "keywords": [],
+  "author": "Sanyam Arya",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^16.0.3",
+    "notion-plus": "file:.."
+  }
+}

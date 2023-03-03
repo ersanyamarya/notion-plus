@@ -2,6 +2,7 @@ import {
   BotUserObjectResponse,
   CreatedByPropertyItemObjectResponse,
   DatePropertyItemObjectResponse,
+  FilesPropertyItemObjectResponse,
   MultiSelectPropertyItemObjectResponse,
   NumberPropertyItemObjectResponse,
   PageObjectResponse,
@@ -20,21 +21,13 @@ parse them into their correct types. */
 export const parseNotionParams: Record<EnumPropertyTypes, (propertyItem: PropertyItemObjectResponse) => unknown> = {
   title: (propertyItem: TitlePropertyItemObjectResponse) => propertyItem.title[0]?.plain_text,
   rich_text: (propertyItem: RichTextPropertyItemObjectResponse) => propertyItem.rich_text[0]?.plain_text,
-  ...[
-    'number',
-    'files',
-    'checkbox',
-    'date',
-    'string',
-    'boolean',
-    'email',
-    'url',
-    'phone_number',
-    'created_time',
-  ].reduce((acc, type) => {
-    acc[type] = (propertyItem: NumberPropertyItemObjectResponse) => propertyItem[type]
-    return acc
-  }, {} as Record<EnumPropertyTypes, (propertyItem: PropertyItemObjectResponse) => unknown>),
+  ...['number', 'checkbox', 'date', 'string', 'boolean', 'email', 'url', 'phone_number', 'created_time'].reduce(
+    (acc, type) => {
+      acc[type] = (propertyItem: NumberPropertyItemObjectResponse) => propertyItem[type]
+      return acc
+    },
+    {} as Record<EnumPropertyTypes, (propertyItem: PropertyItemObjectResponse) => unknown>
+  ),
   select: (propertyItem: SelectPropertyItemObjectResponse) => (propertyItem.select ? propertyItem.select.name : ''),
   status: (propertyItem: StatusPropertyItemObjectResponse) => (propertyItem.status ? propertyItem.status.name : ''),
   multi_select: (propertyItem: MultiSelectPropertyItemObjectResponse) =>
@@ -50,6 +43,10 @@ export const parseNotionParams: Record<EnumPropertyTypes, (propertyItem: Propert
     return bot.bot.owner
   },
   date: (propertyItem: DatePropertyItemObjectResponse) => propertyItem.date,
+  files: (propertyItem: FilesPropertyItemObjectResponse) => {
+    const file = propertyItem.files[0]
+    return file.type === 'external' ? file.external.url : file.file.url
+  },
 }
 
 /* It's a map of all the different types of properties that Notion has, and the function that will
@@ -106,26 +103,27 @@ export const getNotionPropertyFromData: Record<
       date: value,
     },
   }),
-
-  ...[
-    'number',
-    'files',
-    'checkbox',
-    'date',
-    'string',
-    'boolean',
-    'email',
-    'url',
-    'phone_number',
-    'created_time',
-  ].reduce((acc, type) => {
-    acc[type] = (value, property) => ({
-      [property]: {
-        [type]: value,
+  files: (value, property) => ({
+    [property]: {
+      name: value,
+      type: 'external',
+      external: {
+        url: value,
       },
-    })
-    return acc
-  }, {} as Record<EnumPropertyTypes, (value: unknown, property: string) => PageObjectResponse['properties']>),
+    },
+  }),
+
+  ...['number', 'checkbox', 'date', 'string', 'boolean', 'email', 'url', 'phone_number', 'created_time'].reduce(
+    (acc, type) => {
+      acc[type] = (value, property) => ({
+        [property]: {
+          [type]: value,
+        },
+      })
+      return acc
+    },
+    {} as Record<EnumPropertyTypes, (value: unknown, property: string) => PageObjectResponse['properties']>
+  ),
 }
 
 /**
@@ -134,10 +132,11 @@ export const getNotionPropertyFromData: Record<
  * @param {PageObjectResponse} updatedUser - PageObjectResponse
  * @param [metaData=false] - boolean - whether or not to include the metadata of the page
  */
-export const prettyDbData = <T>(updatedUser: PageObjectResponse, metaData = false): T =>
-  Object.keys(updatedUser.properties).reduce(
+export const prettyDbData = <T>(updatedUser: PageObjectResponse, metaData = false): T => {
+  const data = Object.keys(updatedUser.properties).reduce(
     (acc, prop) => {
       const property = updatedUser.properties[prop]
+
       return {
         ...acc,
         [prop]: parseNotionParams[property.type](property),
@@ -154,3 +153,5 @@ export const prettyDbData = <T>(updatedUser: PageObjectResponse, metaData = fals
         } as T)
       : ({} as T)
   )
+  return data
+}

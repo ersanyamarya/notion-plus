@@ -85,7 +85,7 @@ The following property types are supported:
 | `date`         | A date or date-time value.                      |
 | `string`       | A plain text string.                            |
 | `boolean`      | A boolean value.                                |
-| `files`        | A file or list of files.                        |
+| `files`        | A file url.                                     |
 | `email`        | An email address.                               |
 | `url`          | A URL.                                          |
 | `phone_number` | A phone number.                                 |
@@ -224,12 +224,12 @@ A class representing a Notion database model with typed properties.
 
 ### Methods
 
-| Method   | Parameters                                       | Return value                 | Description                                          |
-| -------- | ------------------------------------------------ | ---------------------------- | ---------------------------------------------------- |
-| `find`   | `{ filter?, pageSize?, sorts?, metadata? }`      | `Promise<FilterResponse<T>>` | Finds and returns a filtered list of database items. |
-| `create` | `item: Partial<T>, metaData = false`             | `Promise<T & NotionRecord>`  | Creates a new item in the database.                  |
-| `update` | `id: string, data: Partial<T>, metaData = false` | `Promise<T & NotionRecord>`  | Updates an existing item in the database.            |
-| `archive` | `id: string, metaData = false`                   | `Promise<T & NotionRecord>`  | Archives an existing item in the database.            |
+| Method    | Parameters                                       | Return value                 | Description                                          |
+| --------- | ------------------------------------------------ | ---------------------------- | ---------------------------------------------------- |
+| `find`    | `{ filter?, pageSize?, sorts?, metadata? }`      | `Promise<FilterResponse<T>>` | Finds and returns a filtered list of database items. |
+| `create`  | `item: Partial<T>, metaData = false`             | `Promise<T & NotionRecord>`  | Creates a new item in the database.                  |
+| `update`  | `id: string, data: Partial<T>, metaData = false` | `Promise<T & NotionRecord>`  | Updates an existing item in the database.            |
+| `archive` | `id: string, metaData = false`                   | `Promise<T & NotionRecord>`  | Archives an existing item in the database.           |
 
 
 #### `archive(id: string, metaData?: boolean): Promise<T | Record<string, unknown>>`
