@@ -13,6 +13,7 @@ import {
   StatusPropertyItemObjectResponse,
   TitlePropertyItemObjectResponse,
   UserObjectResponse,
+  UniqueIdPropertyItemObjectResponse
 } from '@notionhq/client/build/src/api-endpoints'
 import { EnumPropertyTypes } from './schema'
 
@@ -47,6 +48,9 @@ export const parseNotionParams: Record<EnumPropertyTypes, (propertyItem: Propert
     const file = propertyItem.files[0]
     return file.type === 'external' ? file.external.url : file.file.url
   },
+  unique_id: (propertyItem: UniqueIdPropertyItemObjectResponse) => {
+    return `${propertyItem.unique_id.prefix?.concat('-') || ''}${propertyItem.unique_id.number}`
+  }
 }
 
 /* It's a map of all the different types of properties that Notion has, and the function that will

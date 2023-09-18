@@ -92,6 +92,7 @@ The following property types are supported:
 | `created_by`   | The user who created the page or database item. |
 | `created_time` | The time the page or database item was created. |
 | `status`       | The status of a page or database item.          |
+| `unique_id`    | A unique id for database.                       |
 
 ---
 ## The `NotionPlus` Class
