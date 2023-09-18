@@ -60,6 +60,6 @@
     "dotenv": "^16.0.3"
   },
   "dependencies": {
-    "@notionhq/client": "^2.2.3"
+    "@notionhq/client": "^2.2.13"
   }
 }

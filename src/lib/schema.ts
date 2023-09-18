@@ -17,6 +17,7 @@ export type EnumPropertyTypes =
   | 'created_by'
   | 'created_time'
   | 'status'
+  | 'unique_id'
 
 export type NotionRecord = {
   id: string
